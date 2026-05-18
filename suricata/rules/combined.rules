@@ -1,0 +1,75 @@
+# ============================================================
+# MOBILIS SOC V2 — Custom Suricata Rules
+# Optimized for home lab on Windows with Npcap
+# ============================================================
+
+# ── ICMP ────────────────────────────────────────────────────
+alert icmp any any -> $HOME_NET any (msg:"ICMP Ping Sweep"; itype:8; threshold:type threshold, track by_src, count 5, seconds 3; sid:1000001; rev:2;)
+alert icmp any any -> $HOME_NET any (msg:"ICMP Flood Attack"; itype:8; threshold:type threshold, track by_src, count 50, seconds 5; sid:1000002; rev:2;)
+
+# ── PORT SCANNING ────────────────────────────────────────────
+alert tcp any any -> $HOME_NET any (msg:"TCP SYN Port Scan Detected"; flags:S; threshold:type threshold, track by_src, count 20, seconds 5; sid:1000010; rev:2;)
+alert tcp any any -> $HOME_NET any (msg:"TCP Connect Scan Detected"; flags:SA; threshold:type threshold, track by_src, count 15, seconds 5; sid:1000011; rev:2;)
+alert tcp any any -> $HOME_NET any (msg:"Nmap NULL Scan Detected"; flags:0; sid:1000012; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"Nmap FIN Scan Detected"; flags:F; sid:1000013; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"Nmap XMAS Scan Detected"; flags:FPU; sid:1000014; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"TCP ACK Scan Detected"; flags:A; threshold:type threshold, track by_src, count 20, seconds 5; sid:1000015; rev:1;)
+alert udp any any -> $HOME_NET any (msg:"UDP Port Scan Detected"; threshold:type threshold, track by_src, count 30, seconds 5; sid:1000016; rev:1;)
+
+# ── SSH ATTACKS ──────────────────────────────────────────────
+alert tcp any any -> $HOME_NET 22 (msg:"SSH Brute Force Attempt"; flags:S; threshold:type threshold, track by_src, count 5, seconds 30; sid:1000020; rev:2;)
+alert tcp any any -> $HOME_NET 22 (msg:"SSH Scan Detected"; flags:S; threshold:type threshold, track by_src, count 3, seconds 10; sid:1000021; rev:1;)
+alert tcp any any -> any 2222 (msg:"SSH Attack on Honeypot Port 2222"; flags:S; sid:1000022; rev:2;)
+alert tcp any any -> any 23 (msg:"Telnet Attack on Honeypot Port 23"; flags:S; sid:1000023; rev:1;)
+
+# ── HTTP ATTACKS ─────────────────────────────────────────────
+alert tcp any any -> $HOME_NET 80 (msg:"HTTP Flood Attack"; flags:PA; threshold:type threshold, track by_src, count 100, seconds 10; sid:1000030; rev:2;)
+alert tcp any any -> $HOME_NET 80 (msg:"HTTP Slowloris Attack"; flags:PA; threshold:type threshold, track by_src, count 50, seconds 30; sid:1000031; rev:1;)
+alert http any any -> $HOME_NET any (msg:"HTTP SQL Injection Attempt"; http.uri; content:"SELECT"; nocase; sid:1000032; rev:1;)
+alert http any any -> $HOME_NET any (msg:"HTTP SQL Injection UNION"; http.uri; content:"UNION"; nocase; sid:1000033; rev:1;)
+alert http any any -> $HOME_NET any (msg:"HTTP XSS Attempt"; http.uri; content:"<script>"; nocase; sid:1000034; rev:1;)
+alert http any any -> $HOME_NET any (msg:"HTTP Directory Traversal"; http.uri; content:"../"; sid:1000035; rev:1;)
+alert http any any -> $HOME_NET any (msg:"HTTP Web Scanner - Nikto"; http.user_agent; content:"Nikto"; nocase; sid:1000036; rev:1;)
+alert http any any -> $HOME_NET any (msg:"HTTP Web Scanner - sqlmap"; http.user_agent; content:"sqlmap"; nocase; sid:1000037; rev:1;)
+
+# ── SMB ATTACKS ──────────────────────────────────────────────
+alert tcp any any -> $HOME_NET 445 (msg:"SMB Scan Detected"; flags:S; threshold:type threshold, track by_src, count 5, seconds 10; sid:1000040; rev:1;)
+alert tcp any any -> $HOME_NET 445 (msg:"EternalBlue Exploit Attempt MS17-010"; content:"|00 00 00 85 ff 53 4d 42|"; depth:8; sid:1000041; rev:2;)
+alert tcp any any -> $HOME_NET 139 (msg:"NetBIOS Scan Detected"; flags:S; threshold:type threshold, track by_src, count 5, seconds 10; sid:1000042; rev:1;)
+
+# ── FTP ATTACKS ──────────────────────────────────────────────
+alert tcp any any -> $HOME_NET 21 (msg:"FTP Brute Force Attempt"; flags:S; threshold:type threshold, track by_src, count 5, seconds 30; sid:1000050; rev:1;)
+alert tcp any any -> $HOME_NET 21 (msg:"FTP Scan Detected"; flags:S; sid:1000051; rev:1;)
+
+# ── DATABASE ATTACKS ─────────────────────────────────────────
+alert tcp any any -> $HOME_NET 3306 (msg:"MySQL Scan Detected"; flags:S; threshold:type threshold, track by_src, count 3, seconds 10; sid:1000060; rev:1;)
+alert tcp any any -> $HOME_NET 5432 (msg:"PostgreSQL Scan Detected"; flags:S; threshold:type threshold, track by_src, count 3, seconds 10; sid:1000061; rev:1;)
+alert tcp any any -> $HOME_NET 6379 (msg:"Redis Scan Detected"; flags:S; sid:1000062; rev:1;)
+alert tcp any any -> $HOME_NET 27017 (msg:"MongoDB Scan Detected"; flags:S; sid:1000063; rev:1;)
+
+# ── SYN FLOOD ────────────────────────────────────────────────
+alert tcp any any -> $HOME_NET any (msg:"TCP SYN Flood Attack"; flags:S; threshold:type threshold, track by_src, count 200, seconds 5; sid:1000070; rev:2;)
+alert tcp any any -> $HOME_NET 80 (msg:"HTTP SYN Flood"; flags:S; threshold:type threshold, track by_src, count 100, seconds 5; sid:1000071; rev:1;)
+
+# ── DNS ATTACKS ──────────────────────────────────────────────
+alert udp any any -> $HOME_NET 53 (msg:"DNS Amplification Attack"; threshold:type threshold, track by_src, count 50, seconds 5; sid:1000080; rev:1;)
+alert udp any any -> any 53 (msg:"DNS Zone Transfer Attempt"; content:"|00 00 FC|"; offset:14; sid:1000081; rev:1;)
+
+# ── VULNERABILITY SCANNERS ───────────────────────────────────
+alert tcp any any -> $HOME_NET any (msg:"Nmap Service Detection Scan"; flags:S; threshold:type threshold, track by_src, count 10, seconds 2; sid:1000090; rev:2;)
+alert http any any -> $HOME_NET any (msg:"Nmap HTTP Scan"; http.user_agent; content:"Nmap Scripting Engine"; nocase; sid:1000091; rev:1;)
+alert http any any -> $HOME_NET any (msg:"DirBuster Web Scan"; http.user_agent; content:"DirBuster"; nocase; sid:1000092; rev:1;)
+alert http any any -> $HOME_NET any (msg:"Gobuster Web Scan"; http.user_agent; content:"gobuster"; nocase; sid:1000093; rev:1;)
+
+# ── RDP ATTACKS ──────────────────────────────────────────────
+alert tcp any any -> $HOME_NET 3389 (msg:"RDP Brute Force Attempt"; flags:S; threshold:type threshold, track by_src, count 5, seconds 30; sid:1000100; rev:1;)
+alert tcp any any -> $HOME_NET 3389 (msg:"RDP Scan Detected"; flags:S; sid:1000101; rev:1;)
+
+# ── SUSPICIOUS OUTBOUND ──────────────────────────────────────
+alert tcp $HOME_NET any -> !$HOME_NET 4444 (msg:"Metasploit Default Reverse Shell Port"; sid:1000110; rev:1;)
+alert tcp $HOME_NET any -> !$HOME_NET 5555 (msg:"Suspicious Outbound Port 5555"; sid:1000111; rev:1;)
+alert tcp $HOME_NET any -> !$HOME_NET 1337 (msg:"Suspicious Outbound Port 1337"; sid:1000112; rev:1;)
+
+# ── KALI LINUX TOOLS ─────────────────────────────────────────
+alert tcp any any -> $HOME_NET any (msg:"hping3 SYN Flood"; flags:S; threshold:type threshold, track by_src, count 500, seconds 3; sid:1000120; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"Masscan Port Sweep"; flags:S; threshold:type threshold, track by_src, count 50, seconds 1; sid:1000121; rev:1;)

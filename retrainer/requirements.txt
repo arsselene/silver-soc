@@ -1,0 +1,6 @@
+psycopg2-binary
+scikit-learn==1.6.1
+joblib
+numpy
+pandas
+apscheduler

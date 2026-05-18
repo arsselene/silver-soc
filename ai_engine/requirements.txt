@@ -1,0 +1,10 @@
+confluent-kafka
+pandas
+numpy
+scikit-learn==1.6.1
+joblib
+shap
+psycopg2-binary
+redis
+fastapi
+uvicorn

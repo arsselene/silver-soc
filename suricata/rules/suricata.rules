@@ -1,0 +1,4 @@
+
+# MOBILIS SOC - Custom Honeypot Rule
+alert tcp any any -> any 2222 (msg:"SSH Attack Attempt on Honeypot Port"; flags:S; sid:1000003; rev:1;)
+
