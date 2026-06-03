@@ -1,8 +1,7 @@
 // Real API service — connects to Mobilis SOC FastAPI backend
 // Backend runs at http://localhost:8002
 
-const BASE = "http://localhost:8002";
-
+const BASE = "http://localhost:8080";
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`);

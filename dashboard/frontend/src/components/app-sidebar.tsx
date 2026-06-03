@@ -1,18 +1,28 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Brain, ShieldAlert, Globe, UserSearch, Workflow, Shield } from "lucide-react";
 import {
-  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
-  SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton,
-  SidebarMenuItem, useSidebar,
+  LayoutDashboard, Brain, ShieldAlert, Globe, UserSearch,
+  Workflow, Shield, GitMerge, Network, MapPin, Search
+} from "lucide-react";
+import {
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
+  SidebarGroupContent, SidebarGroupLabel, SidebarHeader,
+  SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar
 } from "@/components/ui/sidebar";
 
 const items = [
-  { title: "Overview",        url: "/",          icon: LayoutDashboard },
-  { title: "AI Alerts",       url: "/ai-alerts", icon: Brain },
-  { title: "IDS & Deception", url: "/ids",       icon: ShieldAlert },
-  { title: "Threat Intel",    url: "/intel",     icon: Globe },
-  { title: "UEBA",            url: "/ueba",      icon: UserSearch },
-  { title: "SOAR Automation", url: "/soar",      icon: Workflow },
+  { title: "Overview",        url: "/",           icon: LayoutDashboard },
+  { title: "AI Alerts",       url: "/ai-alerts",  icon: Brain },
+  { title: "IDS & Deception", url: "/ids",        icon: ShieldAlert },
+  { title: "Threat Intel",    url: "/intel",      icon: Globe },
+  { title: "UEBA",            url: "/ueba",       icon: UserSearch },
+  { title: "SOAR Automation", url: "/soar",       icon: Workflow },
+] as const;
+
+const advanced = [
+  { title: "Incidents",       url: "/incidents",  icon: GitMerge },
+  { title: "Network Topology",url: "/topology",   icon: Network },
+  { title: "GeoIP Map",       url: "/geomap",     icon: MapPin },
+  { title: "Forensic",        url: "/forensic",   icon: Search },
 ] as const;
 
 export function AppSidebar() {
@@ -29,7 +39,7 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div className="flex flex-col leading-none">
-              <span className="text-sm font-semibold tracking-tight">SOC Core</span>
+              <span className="text-sm font-semibold tracking-tight">Silver SOC</span>
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Security Operations</span>
             </div>
           )}
@@ -38,11 +48,32 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel>Workspace</SidebarGroupLabel>}
+          {!collapsed && <SidebarGroupLabel>Detection</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
                 const active = item.url === "/" ? path === "/" : path.startsWith(item.url);
+                return (
+                  <SidebarMenuItem key={item.url}>
+                    <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
+                      <NavLink to={item.url} className="flex items-center gap-2.5">
+                        <item.icon className="h-4 w-4 shrink-0" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          {!collapsed && <SidebarGroupLabel>Advanced</SidebarGroupLabel>}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {advanced.map((item) => {
+                const active = path.startsWith(item.url);
                 return (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton asChild isActive={active} tooltip={item.title}>

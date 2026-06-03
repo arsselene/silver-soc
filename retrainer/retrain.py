@@ -147,7 +147,7 @@ def main():
 
     # Schedule nightly retraining
     scheduler = BlockingScheduler(timezone="UTC")
-    scheduler.add_job(retrain, "cron", hour=RETRAIN_HOUR, minute=0)
+    scheduler.add_job(retrain, 'interval', hours=1)
 
     log.info(f"⏰ Next retrain scheduled for {RETRAIN_HOUR:02d}:00 UTC")
     try:
