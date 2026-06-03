@@ -141,8 +141,8 @@ services:
     container_name: silver_honeypot
     restart: unless-stopped
     ports:
-      - "22:2222"
-      - "23:2223"
+      - "2222:2222"
+      - "2223:2223"
     volumes:
       - ./honeypot/cowrie.cfg:/cowrie/etc/cowrie.cfg:ro
       - honeypot_data:/cowrie/cowrie-git/var/lib/cowrie
